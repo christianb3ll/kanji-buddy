@@ -3,27 +3,22 @@ import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Dashboard page
 function DashboardPage({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>This is the dashboard</Text>
-
       <TouchableOpacity onPress={() => navigation.navigate("Study")}>
-          <Text>Study</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("Review")}>
-          <Text>Review</Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => navigation.navigate("My Kanji")}>
-          <Text>My Kanji</Text>
+        <Text>Study</Text>
       </TouchableOpacity>
     </View>
     );
   };
+
+// Create the study navigation stack
+const StudyStack = createStackNavigator();
 
 // Study page
 function StudyPage({ navigation }) {
@@ -52,18 +47,18 @@ function MyKanjiPage({ navigation }) {
     );
   };
 
-// Create the navigation stack
-const Stack = createStackNavigator();
+// Create the tab navigator
+const TabNav = createBottomTabNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Dashboard" options={{headerShown: false}} component={DashboardPage} />
-        <Stack.Screen name="Study" options={{headerShown: false}} component={StudyPage} />
-        <Stack.Screen name="Review" options={{headerShown: false}} component={ReviewPage} />
-        <Stack.Screen name="My Kanji" options={{headerShown: false}} component={MyKanjiPage} />
-      </Stack.Navigator>
+      <TabNav.Navigator screenOptions={{ headerShown: false }}>
+        <TabNav.Screen name="Dashboard" component={DashboardPage} />
+        <TabNav.Screen name="Study" component={StudyPage} />
+        <TabNav.Screen name="Review" component={ReviewPage} />
+        <TabNav.Screen name="My Kanji" component={MyKanjiPage} />
+      </TabNav.Navigator>
     </NavigationContainer>
   );
 }
