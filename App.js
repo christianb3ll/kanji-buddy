@@ -4,13 +4,14 @@ import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useState } from 'react';
 
 // Dashboard page
 function DashboardPage({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>This is the dashboard</Text>
-      <TouchableOpacity onPress={() => navigation.navigate("Study")}>
+      <TouchableOpacity onPress={() => navigation.navigate("Study Kanji")}>
         <Text>Study</Text>
       </TouchableOpacity>
     </View>
@@ -23,11 +24,60 @@ const StudyStack = createStackNavigator();
 // Study page
 function StudyPage({ navigation }) {
   return (
-    <View style={styles.container}>
-      <Text>This is the Study page</Text>
-    </View>
+      <StudyStack.Navigator>
+        <StudyStack.Screen name='Study' options={{ headerShown: false }} component={StudyHomePage}/>
+        <StudyStack.Screen name='Kanji' component={KanjiPage}/>
+      </StudyStack.Navigator>
     );
   };
+
+// Study home page
+function StudyHomePage({ navigation }) {
+  return (
+    <View style={styles.container}>
+      <Text>This is the Study page</Text>
+        <TouchableOpacity onPress={() => navigation.navigate("Kanji")}>
+          <Text>Kanji</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
+// Kanji page
+function KanjiPage({ navigation }) {
+  const [kanjiInfo, setKanjiInfo] = useState();
+
+  // Get the kanji details
+  const makeCall = function() {
+    // make api call
+    fetch('https://kanjiapi.dev/v1/kanji/時')
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      setKanjiInfo(json);
+    });
+  }
+
+  if (kanjiInfo === undefined){
+    return (
+      <View style={styles.container}>
+        <Text>This is a Kanji page... no current kanji</Text>
+        <TouchableOpacity onPress={makeCall}>
+          <Text>Get Kanji</Text>
+        </TouchableOpacity>
+      </View>
+      );
+  } else {
+    return (
+      <View style={styles.container}>
+        <Text>{kanjiInfo.kanji}</Text>
+      </View>
+    );
+  }
+  
+  };
+
+
 
 // Review page
 function ReviewPage({ navigation }) {
@@ -55,8 +105,8 @@ export default function App() {
     <NavigationContainer>
       <TabNav.Navigator screenOptions={{ headerShown: false }}>
         <TabNav.Screen name="Dashboard" component={DashboardPage} />
-        <TabNav.Screen name="Study" component={StudyPage} />
-        <TabNav.Screen name="Review" component={ReviewPage} />
+        <TabNav.Screen name="Study Kanji" component={StudyPage} />
+        <TabNav.Screen name="Review Kanji" component={ReviewPage} />
         <TabNav.Screen name="My Kanji" component={MyKanjiPage} />
       </TabNav.Navigator>
     </NavigationContainer>
