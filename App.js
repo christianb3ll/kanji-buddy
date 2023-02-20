@@ -1,10 +1,23 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SvgUri } from 'react-native-svg';
 import { useState } from 'react';
+
+import LogoImg from './assets/images/kanji-buddy-logo.svg';
+
+// Setup Kanji States
+const kanjiList = ["一","国","時","二","人","年"];
+
+// Kanji List Component
+function KanjiListComponent(){
+  for(var i = 0; i < kanjiList.length; i++){
+    // 
+  }
+}
 
 // Dashboard page
 function DashboardPage({ navigation }) {
@@ -97,14 +110,25 @@ function MyKanjiPage({ navigation }) {
     );
   };
 
+// Navigation Header
+function HeaderLogo() {
+  
+  return (
+    <LogoImg
+      width={250}
+      height={100}
+    />
+  );
+}
+
 // Create the tab navigator
 const TabNav = createBottomTabNavigator();
 
 export default function App() {
   return (
     <NavigationContainer>
-      <TabNav.Navigator screenOptions={{ headerShown: false }}>
-        <TabNav.Screen name="Dashboard" component={DashboardPage} />
+      <TabNav.Navigator screenOptions={{ headerShown: true }}>
+        <TabNav.Screen name="Dashboard" component={DashboardPage} options={{ headerTitle: (props) => <HeaderLogo {...props} /> }} />
         <TabNav.Screen name="Study Kanji" component={StudyPage} />
         <TabNav.Screen name="Review Kanji" component={ReviewPage} />
         <TabNav.Screen name="My Kanji" component={MyKanjiPage} />
