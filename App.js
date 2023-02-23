@@ -1,38 +1,47 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
-//import { Svg } from 'react-native-svg';
+import { SvgXml } from 'react-native-svg';
 import { useState, useRef } from 'react';
 // import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
+// import * as Kanji from "kanji-react-icons/dist/kanji";
 
 import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
 import StudyIcon from './assets/images/study-icon.svg';
 import ReviewIcon from './assets/images/review-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
+import kanjiListData from './kanjiList.js';
 
+const kanjiList = kanjiListData;
+import TestKanji from './assets/images/06635.svg';
 
 // Setup Kanji States
-const kanjiList = ["一","国","時","二","人","年"];
+// const kanjiList = ["一","国","時","二","人","年"];
 
 // Kanji List Component
 function KanjiListComponent(){
   return(
-    <View style={styles.kanjiGrid}>
-      {kanjiList.map((kanji)=>{
-          return(
-            <View style={styles.kanjiCard}>
-              <Text>
-                {kanji}
-              </Text>
-            </View>
-          )})
-      }
-    </View>
+    <ScrollView>
+      <View style={styles.kanjiGrid}>
+        {kanjiList.map((kanji)=>{
+            return(
+              <View style={styles.kanjiCard} key={kanji}>
+                <Text>
+                  {kanji}
+                </Text>
+              {/* {  console.log(Kanji.Kanji丁())} */}
+
+                {/* <SvgXml xml={TestKanji} width="100%" height="100%" /> */}
+              </View>
+            )})
+        }
+      </View>
+    </ScrollView>
   )
 }
 
@@ -230,10 +239,11 @@ function HeaderComponent() {
     <SafeAreaView>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-          <LogoImg
+          {/* <LogoImg
             width={250}
             height={100}
-          />
+          /> */}
+          <SvgXml xml={LogoImg} width="100%" height="100%" />
           <TouchableOpacity>
             <Text>Menu</Text>
           </TouchableOpacity>
@@ -269,10 +279,10 @@ export default function App() {
             // add custom icons
             let icon;
             // set icon based on route name
-            if(route.name === 'Dashboard') icon = <DashboardIcon color={color} />;
-            if(route.name === 'Study Kanji') icon = <StudyIcon color={color} />;
-            if(route.name === 'Review Kanji') icon = <ReviewIcon color={color} />;
-            if(route.name === 'My Kanji') icon = <MyKanjiIcon color={color} />;
+            if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon}  />;
+            if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
+            if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
+            if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
 
             return icon;
           },
