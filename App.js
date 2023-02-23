@@ -30,14 +30,18 @@ function KanjiListComponent(){
       <View style={styles.kanjiGrid}>
         {kanjiList.map((kanji)=>{
             return(
-              <View style={styles.kanjiCard} key={kanji}>
+              <TouchableOpacity 
+                style={styles.kanjiCard}
+                key={kanji}
+                onPress={()=>{console.log("Kanji: " + kanji)}}
+              >
                 <Text>
                   {kanji}
                 </Text>
               {/* {  console.log(Kanji.Kanji丁())} */}
 
                 {/* <SvgXml xml={TestKanji} width="100%" height="100%" /> */}
-              </View>
+              </TouchableOpacity>
             )})
         }
       </View>
@@ -101,6 +105,9 @@ function DashboardPage({ navigation }) {
 
       <View>
 
+        {/* {console.log(kanjitest)} */}
+        {/* <SvgCss xml={Kanji.Kanji七.toString()}  /> */}
+        
       </View>
       
     </View>
@@ -239,11 +246,6 @@ function HeaderComponent() {
     <SafeAreaView>
       <View style={styles.header}>
         <View style={styles.headerContent}>
-
-          {/* <LogoImg
-            width={250}
-            height={100}
-          /> */}
 
           <SvgCss xml={LogoImg} width="250" height="100"/>
 
