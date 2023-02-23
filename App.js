@@ -1,11 +1,11 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
-import { SvgUri } from 'react-native-svg';
+//import { Svg } from 'react-native-svg';
 import { useState, useRef } from 'react';
 // import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
 
@@ -22,7 +22,7 @@ const kanjiList = ["一","国","時","二","人","年"];
 // Kanji List Component
 function KanjiListComponent(){
   return(
-    <View style={styles.kanjiGid}>
+    <View style={styles.kanjiGrid}>
       {kanjiList.map((kanji)=>{
           return(
             <View style={styles.kanjiCard}>
@@ -380,7 +380,7 @@ const styles = StyleSheet.create({
       width: 2,
       height: 2
     },
-    width: '22%',
+    width: '20%',
     height: 150,
     marginBottom: 10,
     justifyContent: 'center',
