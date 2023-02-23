@@ -5,7 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
-import { SvgXml } from 'react-native-svg';
+import { SvgXml, SvgCss } from 'react-native-svg';
 import { useState, useRef } from 'react';
 // import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
 // import * as Kanji from "kanji-react-icons/dist/kanji";
@@ -239,11 +239,14 @@ function HeaderComponent() {
     <SafeAreaView>
       <View style={styles.header}>
         <View style={styles.headerContent}>
+
           {/* <LogoImg
             width={250}
             height={100}
           /> */}
-          <SvgXml xml={LogoImg} width="100%" height="100%" />
+
+          <SvgCss xml={LogoImg} width="250" height="100"/>
+
           <TouchableOpacity>
             <Text>Menu</Text>
           </TouchableOpacity>
