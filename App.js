@@ -1,35 +1,51 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, Button, TouchableOpacity } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useFonts } from 'expo-font';
-import { SvgUri } from 'react-native-svg';
+import { SvgXml, SvgCss } from 'react-native-svg';
 import { useState, useRef } from 'react';
 // import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
+// import * as Kanji from "kanji-react-icons/dist/kanji";
 
 import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
+import StudyIcon from './assets/images/study-icon.svg';
+import ReviewIcon from './assets/images/review-icon.svg';
+import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
+import kanjiListData from './kanjiList.js';
 
+const kanjiList = kanjiListData;
+import TestKanji from './assets/images/06635.svg';
 
 // Setup Kanji States
-const kanjiList = ["一","国","時","二","人","年"];
+// const kanjiList = ["一","国","時","二","人","年"];
 
 // Kanji List Component
 function KanjiListComponent(){
   return(
-    <View style={styles.kanjiGid}>
-      {kanjiList.map((kanji)=>{
-          return(
-            <View style={styles.kanjiCard}>
-              <Text>
-                {kanji}
-              </Text>
-            </View>
-          )})
-      }
-    </View>
+    <ScrollView>
+      <View style={styles.kanjiGrid}>
+        {kanjiList.map((kanji)=>{
+            return(
+              <TouchableOpacity 
+                style={styles.kanjiCard}
+                key={kanji}
+                onPress={()=>{console.log("Kanji: " + kanji)}}
+              >
+                <Text>
+                  {kanji}
+                </Text>
+              {/* {  console.log(Kanji.Kanji丁())} */}
+
+                {/* <SvgXml xml={TestKanji} width="100%" height="100%" /> */}
+              </TouchableOpacity>
+            )})
+        }
+      </View>
+    </ScrollView>
   )
 }
 
@@ -89,6 +105,9 @@ function DashboardPage({ navigation }) {
 
       <View>
 
+        {/* {console.log(kanjitest)} */}
+        {/* <SvgCss xml={Kanji.Kanji七.toString()}  /> */}
+        
       </View>
       
     </View>
@@ -113,14 +132,19 @@ function StudyHomePage({ navigation }) {
   return (
     <View style={styles.container}>
       {/* study CTA */}
-      <View>
-
+      <View style={[styles.dashboardBox, styles.dashboardBoxPurple]}>
+        <Text>
+          Progress box
+        </Text>
+        <TouchableOpacity style={[styles.standardBtn, styles.halfWidthBtn]} onPress={() => navigation.navigate("Kanji")}>
+          <Text style={styles.standardBtnText}>Study</Text>
+        </TouchableOpacity>
       </View>
 
       {/* JLPT level select */}
       <View style={styles.jlptBtnContainer}>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnActive]}><Text>All</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.jlptBtn}><Text>N5</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.jlptBtn}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N4</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N3</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N2</Text></TouchableOpacity>
@@ -128,7 +152,7 @@ function StudyHomePage({ navigation }) {
       </View>
 
       {/* kanji grid */}
-
+      
       <Text>This is the Study page</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Kanji")}>
           <Text>Kanji</Text>
@@ -140,7 +164,7 @@ function StudyHomePage({ navigation }) {
     );
   };
 
-// Kanji page
+// Kanji pactice page
 function KanjiPracticePage({ navigation }) {
   const [kanjiInfo, setKanjiInfo] = useState();
 
@@ -171,12 +195,12 @@ function KanjiPracticePage({ navigation }) {
       </View>
     );
   }
-  
   };
 
 // Create the review navigation stack
 const ReviewStack = createStackNavigator();
 
+// Review page navigation
 function ReviewPage({ navigation }) {
   return (
       <StudyStack.Navigator>
@@ -186,7 +210,7 @@ function ReviewPage({ navigation }) {
     );
   };
 
-// Review page
+// Review listing page
 function ReviewHomePage({ navigation }) {
   return (
     <View style={styles.container}>
@@ -198,6 +222,7 @@ function ReviewHomePage({ navigation }) {
     );
   };
 
+// Kanji review page
 function KanjiReviewPage({ navigation }) {
   return (
     <View style={styles.container}>
@@ -216,39 +241,30 @@ function MyKanjiPage({ navigation }) {
   };
 
 // Navigation Header
-function HeaderLogo() {
+function HeaderComponent() {
   return (
-    <LogoImg
-      width={250}
-      height={100}
-    />
+    <SafeAreaView>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+
+          <SvgCss xml={LogoImg} width="250" height="100"/>
+
+          <TouchableOpacity>
+            <Text>Menu</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 // Create the tab navigator
 const TabNav = createBottomTabNavigator();
 
+// Setup the header
 const Header  = {
-  headerTitle: (props) => <HeaderLogo {...props} />,
-  headerRight: () => (
-  <Button
-    onPress={() => alert('This is a button!')}
-    title="button"
-    color="#000"
-  />)
+  header: (props) => <HeaderComponent {...props} />
 };
-
-// tabIcons = {
-//   tabBarIcon: ({ color, size }) => {
-//     let icon;
-
-//     if(route.name === 'Dashboard') icon = {DashboardIcon};
-    
-//     return <icon name={iconName} size={size} color={color} />;
-//   },
-//   tabBarActiveTintColor: 'tomato',
-//   tabBarInactiveTintColor: 'gray',
-// }
 
 export default function App() {
   // Add custom fonts
@@ -261,7 +277,24 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <TabNav.Navigator screenOptions={{ headerShown: true }}>
+    <TabNav.Navigator screenOptions={({ route }) => ({
+          headerShown: true,
+          tabBarLabelStyle: styles.tabs,
+          tabBarIcon: ({ color }) => {
+            // add custom icons
+            let icon;
+            // set icon based on route name
+            if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon}  />;
+            if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
+            if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
+            if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
+
+            return icon;
+          },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
         <TabNav.Screen name="Dashboard" component={DashboardPage} options={Header} />
         <TabNav.Screen name="Study Kanji" component={StudyPage} options={Header} />
         <TabNav.Screen name="Review Kanji" component={ReviewPage}options={Header} />
@@ -278,6 +311,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F7F9',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  header: {
+    backgroundColor: '#FFF',
+    height: 100,
+  },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row'
+  },
+  tabs: {
+    fontFamily: 'Roboto',
+    fontSize: 14,
+    color: '#000'
   },
   dashboardBox: {
     width: '100%',
@@ -300,7 +346,13 @@ const styles = StyleSheet.create({
   standardBtn: {
     backgroundColor: '#4059AD',
     width: 200,
-    borderRadius: 12
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  halfWidthBtn: {
+    width: 100
   },
   standardBtnText: {
     fontFamily: 'Inter',
@@ -312,22 +364,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   jlptBtn: {
-    flex: 1,
+    width: 40,
+    height: 25,
     backgroundColor: '#4059AD',
-    borderRadius: 8
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  jlptBtnText: {
+    fontFamily: 'Roboto',
+    fontSize: 16
   },
   jlptBtnActive: {
     backgroundColor: '#D2D6EF',
   },
-  jlptBtnDisabled:  {
+  jlptBtnDisabled: {
     opacity: 0.3
   },
-  kanjiGid:{
+  kanjiGrid: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    flexWrap: 'wrap',
   },
-  kanjiCard:{
+  kanjiCard: {
     backgroundColor: '#FFF',
     shadowColor: '#000',
     shadowOpacity: 0.25,
@@ -336,8 +395,11 @@ const styles = StyleSheet.create({
       width: 2,
       height: 2
     },
-    width: '24%',
-    height: 200
+    width: '20%',
+    height: 150,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignContent: 'center'
   }
 
 });
