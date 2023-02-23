@@ -11,6 +11,9 @@ import { useState, useRef } from 'react';
 
 import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
+import StudyIcon from './assets/images/study-icon.svg';
+import ReviewIcon from './assets/images/review-icon.svg';
+import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 
 
 // Setup Kanji States
@@ -261,7 +264,24 @@ export default function App() {
 
   return (
     <NavigationContainer>
-      <TabNav.Navigator screenOptions={{ headerShown: true }}>
+    <TabNav.Navigator screenOptions={({ route }) => ({
+          headerShown: true,
+          tabBarLabelStyle: styles.tabs,
+          tabBarIcon: ({ color }) => {
+            // add custom icons
+            let icon;
+            // set icon based on route name
+            if(route.name === 'Dashboard') icon = <DashboardIcon color={color} />;
+            if(route.name === 'Study Kanji') icon = <StudyIcon color={color} />;
+            if(route.name === 'Review Kanji') icon = <ReviewIcon color={color} />;
+            if(route.name === 'My Kanji') icon = <MyKanjiIcon color={color} />;
+
+            return icon;
+          },
+          tabBarActiveTintColor: 'tomato',
+          tabBarInactiveTintColor: 'gray',
+        })}
+      >
         <TabNav.Screen name="Dashboard" component={DashboardPage} options={Header} />
         <TabNav.Screen name="Study Kanji" component={StudyPage} options={Header} />
         <TabNav.Screen name="Review Kanji" component={ReviewPage}options={Header} />
