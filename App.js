@@ -116,14 +116,19 @@ function StudyHomePage({ navigation }) {
   return (
     <View style={styles.container}>
       {/* study CTA */}
-      <View>
-
+      <View style={[styles.dashboardBox, styles.dashboardBoxPurple]}>
+        <Text>
+          Progress box
+        </Text>
+        <TouchableOpacity style={[styles.standardBtn, styles.halfWidthBtn]} onPress={() => navigation.navigate("Kanji")}>
+          <Text style={styles.standardBtnText}>Study</Text>
+        </TouchableOpacity>
       </View>
 
       {/* JLPT level select */}
       <View style={styles.jlptBtnContainer}>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnActive]}><Text>All</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.jlptBtn}><Text>N5</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.jlptBtn}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N4</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N3</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N2</Text></TouchableOpacity>
@@ -131,7 +136,7 @@ function StudyHomePage({ navigation }) {
       </View>
 
       {/* kanji grid */}
-
+      
       <Text>This is the Study page</Text>
         <TouchableOpacity onPress={() => navigation.navigate("Kanji")}>
           <Text>Kanji</Text>
@@ -143,7 +148,7 @@ function StudyHomePage({ navigation }) {
     );
   };
 
-// Kanji page
+// Kanji pactice page
 function KanjiPracticePage({ navigation }) {
   const [kanjiInfo, setKanjiInfo] = useState();
 
@@ -174,12 +179,12 @@ function KanjiPracticePage({ navigation }) {
       </View>
     );
   }
-  
   };
 
 // Create the review navigation stack
 const ReviewStack = createStackNavigator();
 
+// Review page navigation
 function ReviewPage({ navigation }) {
   return (
       <StudyStack.Navigator>
@@ -189,7 +194,7 @@ function ReviewPage({ navigation }) {
     );
   };
 
-// Review page
+// Review listing page
 function ReviewHomePage({ navigation }) {
   return (
     <View style={styles.container}>
@@ -201,6 +206,7 @@ function ReviewHomePage({ navigation }) {
     );
   };
 
+// Kanji review page
 function KanjiReviewPage({ navigation }) {
   return (
     <View style={styles.container}>
@@ -219,39 +225,31 @@ function MyKanjiPage({ navigation }) {
   };
 
 // Navigation Header
-function HeaderLogo() {
+function HeaderComponent() {
   return (
-    <LogoImg
-      width={250}
-      height={100}
-    />
+    <SafeAreaView>
+      <View style={styles.header}>
+        <View style={styles.headerContent}>
+          <LogoImg
+            width={250}
+            height={100}
+          />
+          <TouchableOpacity>
+            <Text>Menu</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 // Create the tab navigator
 const TabNav = createBottomTabNavigator();
 
+// Setup the header
 const Header  = {
-  headerTitle: (props) => <HeaderLogo {...props} />,
-  headerRight: () => (
-  <Button
-    onPress={() => alert('This is a button!')}
-    title="button"
-    color="#000"
-  />)
+  header: (props) => <HeaderComponent {...props} />
 };
-
-// tabIcons = {
-//   tabBarIcon: ({ color, size }) => {
-//     let icon;
-
-//     if(route.name === 'Dashboard') icon = {DashboardIcon};
-    
-//     return <icon name={iconName} size={size} color={color} />;
-//   },
-//   tabBarActiveTintColor: 'tomato',
-//   tabBarInactiveTintColor: 'gray',
-// }
 
 export default function App() {
   // Add custom fonts
@@ -299,6 +297,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  header: {
+    backgroundColor: '#FFF',
+    height: 100,
+  },
+  headerContent: {
+    flex: 1,
+    flexDirection: 'row'
+  },
+  tabs: {
+    fontFamily: 'Roboto',
+    fontSize: 14,
+    color: '#000'
+  },
   dashboardBox: {
     width: '100%',
     backgroundColor: '#FFF',
@@ -320,7 +331,13 @@ const styles = StyleSheet.create({
   standardBtn: {
     backgroundColor: '#4059AD',
     width: 200,
-    borderRadius: 12
+    height: 50,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  halfWidthBtn: {
+    width: 100
   },
   standardBtnText: {
     fontFamily: 'Inter',
@@ -332,22 +349,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   jlptBtn: {
-    flex: 1,
+    width: 40,
+    height: 25,
     backgroundColor: '#4059AD',
-    borderRadius: 8
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  jlptBtnText: {
+    fontFamily: 'Roboto',
+    fontSize: 16
   },
   jlptBtnActive: {
     backgroundColor: '#D2D6EF',
   },
-  jlptBtnDisabled:  {
+  jlptBtnDisabled: {
     opacity: 0.3
   },
-  kanjiGid:{
+  kanjiGrid: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    flexWrap: 'wrap',
   },
-  kanjiCard:{
+  kanjiCard: {
     backgroundColor: '#FFF',
     shadowColor: '#000',
     shadowOpacity: 0.25,
@@ -356,8 +380,11 @@ const styles = StyleSheet.create({
       width: 2,
       height: 2
     },
-    width: '24%',
-    height: 200
+    width: '22%',
+    height: 150,
+    marginBottom: 10,
+    justifyContent: 'center',
+    alignContent: 'center'
   }
 
 });
