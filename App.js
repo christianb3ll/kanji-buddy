@@ -4,9 +4,10 @@ import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 import { SvgXml, SvgCss } from 'react-native-svg';
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 // import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
 // import * as Kanji from "kanji-react-icons/dist/kanji";
 
@@ -17,19 +18,22 @@ import ReviewIcon from './assets/images/review-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 import kanjiListData from './kanjiList.js';
 
-// import glyphwikiData from './glyph-wiki-kanji-list.js';
+import glyphwikiData from './glyph-wiki-kanji-list.js';
 // import 一 from './assets/glyph-images/一.svg';
 
 // console.log(glyphwikiData);
+
+// Prevent the splash screen from hiding until fonts have been loaded
+SplashScreen.preventAutoHideAsync();
 
 
 const kanjiList = kanjiListData;
 import TestKanji from './assets/images/06635.svg';
 
-// Setup Kanji States
-// const kanjiList = ["一","国","時","二","人","年"];
 
-// console.log(glyphwikiData);
+// glyphwikiData.map((kanji)=>{
+//   console.log(kanji.kanji);
+// })
 
 // Kanji List Component
 function KanjiListComponent(){
@@ -283,8 +287,19 @@ export default function App() {
     'Inter': require('./assets/fonts/Inter-Bold.ttf')
   });
 
+  // Load fonts asynchronously: https://docs.expo.dev/guides/using-custom-fonts/
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
-    <NavigationContainer>
+    <NavigationContainer onLayout={onLayoutRootView}>
     <TabNav.Navigator screenOptions={({ route }) => ({
           headerShown: true,
           tabBarLabelStyle: styles.tabs,
