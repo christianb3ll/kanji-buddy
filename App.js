@@ -17,11 +17,19 @@ import ReviewIcon from './assets/images/review-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 import kanjiListData from './kanjiList.js';
 
+// import glyphwikiData from './glyph-wiki-kanji-list.js';
+// import 一 from './assets/glyph-images/一.svg';
+
+// console.log(glyphwikiData);
+
+
 const kanjiList = kanjiListData;
 import TestKanji from './assets/images/06635.svg';
 
 // Setup Kanji States
 // const kanjiList = ["一","国","時","二","人","年"];
+
+// console.log(glyphwikiData);
 
 // Kanji List Component
 function KanjiListComponent(){
