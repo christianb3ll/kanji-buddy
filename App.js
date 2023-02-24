@@ -5,6 +5,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
+import { Font } from 'expo';
 import { useFonts } from 'expo-font';
 import { SvgXml, SvgCss } from 'react-native-svg';
 import { useState, useRef, useCallback } from 'react';
@@ -16,19 +17,16 @@ import DashboardIcon from './assets/images/dashboard-icon.svg';
 import StudyIcon from './assets/images/study-icon.svg';
 import ReviewIcon from './assets/images/review-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
-import kanjiListData from './kanjiList.js';
+// import kanjiListData from './kanjiList.js';
 
+// Import GlyphWiki data
 import glyphwikiData from './glyph-wiki-kanji-list.js';
-// import 一 from './assets/glyph-images/一.svg';
-
-// console.log(glyphwikiData);
 
 // Prevent the splash screen from hiding until fonts have been loaded
-SplashScreen.preventAutoHideAsync();
+// SplashScreen.preventAutoHideAsync();
 
 
-const kanjiList = kanjiListData;
-import TestKanji from './assets/images/06635.svg';
+// const kanjiList = kanjiListData;
 
 
 // glyphwikiData.map((kanji)=>{
@@ -36,23 +34,18 @@ import TestKanji from './assets/images/06635.svg';
 // })
 
 // Kanji List Component
-function KanjiListComponent(){
+function KanjiListComponent({navigation}){
   return(
     <ScrollView>
       <View style={styles.kanjiGrid}>
-        {kanjiList.map((kanji)=>{
+        {glyphwikiData.map((kanji)=>{
             return(
               <TouchableOpacity 
                 style={styles.kanjiCard}
-                key={kanji}
-                onPress={()=>{console.log("Kanji: " + kanji)}}
+                key={kanji.kanji}
+                onPress={() => navigation.navigate("Kanji", {kanji})}
               >
-                <Text>
-                  {kanji}
-                </Text>
-              {/* {  console.log(Kanji.Kanji丁())} */}
-
-                {/* <SvgXml xml={TestKanji} width="100%" height="100%" /> */}
+                <SvgXml xml={kanji.image} width="100%" height="100%" />
               </TouchableOpacity>
             )})
         }
@@ -170,20 +163,22 @@ function StudyHomePage({ navigation }) {
           <Text>Kanji</Text>
         </TouchableOpacity>
 
-        <KanjiListComponent />
+        <KanjiListComponent navigation={navigation}/>
       </View>
       
     );
   };
 
 // Kanji pactice page
-function KanjiPracticePage({ navigation }) {
+function KanjiPracticePage({ route, navigation }) {
   const [kanjiInfo, setKanjiInfo] = useState();
+
+  const kanji = route.params.kanji;
 
   // Get the kanji details
   const makeCall = function() {
     // make api call
-    fetch('https://kanjiapi.dev/v1/kanji/時')
+    fetch(`https://kanjiapi.dev/v1/kanji/${kanji.kanji}`)
     .then((response) => response.json())
     .then((json) => {
       console.log(json);
@@ -196,7 +191,7 @@ function KanjiPracticePage({ navigation }) {
       <View style={styles.container}>
         <Text>This is a Kanji page... no current kanji</Text>
         <TouchableOpacity onPress={makeCall}>
-          <Text>Get Kanji</Text>
+          <Text>Get Kanji {kanji.kanji} </Text>
         </TouchableOpacity>
       </View>
       );
@@ -204,6 +199,11 @@ function KanjiPracticePage({ navigation }) {
     return (
       <View style={styles.container}>
         <Text>{kanjiInfo.kanji}</Text>
+        <Text>Kun Yomi Reading</Text>
+        <Text>{kanjiInfo.kun_readings}</Text>
+        <Text>On Yomi Reading</Text>
+        <Text>{kanjiInfo.on_readings}</Text>
+        <Text>{kanjiInfo.meanings}</Text>
       </View>
     );
   }
@@ -248,6 +248,9 @@ function MyKanjiPage({ navigation }) {
   return (
     <View style={styles.container}>
       <Text>You haven't learned any Kanji yet...</Text>
+      {/* <Text>{myKanji.map((kanji)=> {
+        kanji + ", ";
+      })}</Text> */}
     </View>
     );
   };
@@ -281,25 +284,28 @@ const Header  = {
 export default function App() {
   // Add custom fonts
   const [fontsLoaded] = useFonts({
-    'NotoSans': require('./assets/fonts/NotoSansJP-Regular.otf'),
-    'Roboto': require('./assets/fonts/Roboto-Regular.ttf'),
-    'Quicksand': require('./assets/fonts/Quicksand-Medium.ttf'),
-    'Inter': require('./assets/fonts/Inter-Bold.ttf')
+    'NotoSansJP-Regular': require('./assets/fonts/NotoSansJP-Regular.otf'),
+    'Roboto-Regular': require('./assets/fonts/Roboto-Regular.ttf'),
+    'Quicksand-Medium': require('./assets/fonts/Quicksand-Medium.ttf'),
+    'Inter-Bold': require('./assets/fonts/Inter-Bold.ttf')
   });
 
   // Load fonts asynchronously: https://docs.expo.dev/guides/using-custom-fonts/
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded]);
+  // const onLayoutRootView = useCallback(async () => {
+  //   if (fontsLoaded) {
+  //     await SplashScreen.hideAsync();
+  //   }
+  // }, [fontsLoaded]);
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  // if (!fontsLoaded) {
+  //   return null;
+  // }
+
+
+  // Add to NavigationContainer -- > onLayout={onLayoutRootView}
 
   return (
-    <NavigationContainer onLayout={onLayoutRootView}>
+    <NavigationContainer >
     <TabNav.Navigator screenOptions={({ route }) => ({
           headerShown: true,
           tabBarLabelStyle: styles.tabs,
@@ -344,7 +350,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row'
   },
   tabs: {
-    fontFamily: 'Roboto',
+    fontFamily: 'Roboto-Regular',
     fontSize: 14,
     color: '#000'
   },
@@ -359,12 +365,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#D2D6EF'
   },
   sectionHeading: {
-    fontFamily: 'Quicksand',
+    fontFamily: 'Quicksand-Medium',
     textAlign: 'center',
     fontSize: 24
   },
   bodyText: {
-    fontFamily: 'Roboto'
+    fontFamily: 'Roboto-Regular'
   },
   standardBtn: {
     backgroundColor: '#4059AD',
@@ -378,7 +384,7 @@ const styles = StyleSheet.create({
     width: 100
   },
   standardBtnText: {
-    fontFamily: 'Inter',
+    fontFamily: 'Inter-Bold',
     fontSize: 16,
     textAlign: 'center',
     color: '#FFF'
@@ -395,7 +401,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   jlptBtnText: {
-    fontFamily: 'Roboto',
+    fontFamily: 'Roboto-Regular',
     fontSize: 16
   },
   jlptBtnActive: {
