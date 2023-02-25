@@ -186,14 +186,8 @@ export default function App() {
         </View>
 
         {/* kanji grid */}
-        
-        <Text>This is the Study page</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Kanji")}>
-            <Text>Kanji</Text>
-          </TouchableOpacity>
-
           <KanjiListComponent navigation={navigation}/>
-        </View>
+      </View>
         
       );
     };
@@ -218,20 +212,49 @@ export default function App() {
     if (kanjiInfo === undefined){
       return (
         <View style={styles.container}>
-          {/* English name */}
+          {/* kanji meta */}
+          <View style={styles.kanjiMeta}>
+            {/* English name */}
+            <Text style={styles.kanjiEnglishName}>Day, Sun</Text>
 
-          {/* On Yomi */}
+            
+            <View style={styles.readings}>
+              {/* On Yomi */}
+              <View style={styles.onYomi}>
+                <Text style={styles.readingHeading}>On Yomi</Text>
+                <Text style={styles.japaneseReading}>ニチ, ジツ</Text>
+              </View>
+              
 
-          {/* Kun Yomi */}
+              {/* Kun Yomi */}
+              <View style={styles.kunYomi}>
+                <Text style={styles.readingHeading}>Kun Yomi</Text>
+                <Text style={styles.japaneseReading}> ひ, -び, -か</Text>
+              </View>
+              
+            </View>
+
+
+          </View>
+
+          
 
           {/* kanji image / canvas */}
+          <View style={styles.kanjiCanvas}>
+            <SvgXml xml={kanji.image} />
+          </View>
 
-          {/* add to myKanji */}
-          <TouchableOpacity onPress={()=>{
-            setMyKanji([...myKanji, '時'])
-          }}>
-            <Text>Add to My Kanji</Text>
-          </TouchableOpacity>
+          <View style={styles.kanjiFooter}>
+            {/* add to myKanji */}
+            <TouchableOpacity
+              style={styles.standardBtn}
+              onPress={()=>{
+                setMyKanji([...myKanji, '時'])
+              }}
+            >
+              <Text style={styles.standardBtnText}>Add to My Kanji +</Text>
+            </TouchableOpacity>
+          </View>
 
 
           {/* <Text>This is a Kanji page... no current kanji</Text>
@@ -294,7 +317,7 @@ export default function App() {
       <View style={styles.container}>
         <Text>You haven't learned any Kanji yet...</Text>
         <Text>{myKanji.map((kanji)=> {
-          kanji + ", ";
+          return kanji + ", ";
         })}</Text>
       </View>
       );
@@ -309,9 +332,9 @@ export default function App() {
 
             <SvgCss xml={LogoImg} width="250" height="100"/>
 
-            <TouchableOpacity>
+            {/* <TouchableOpacity>
               <Text>Menu</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
       </SafeAreaView>
@@ -369,7 +392,9 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flex: 1,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   tabs: {
     fontFamily: 'Roboto-Regular',
@@ -382,6 +407,7 @@ const styles = StyleSheet.create({
     borderColor: '#4059AD',
     borderWidth: 2,
     borderRadius: 8,
+    alignItems: 'center'
   },
   dashboardBoxPurple: {
     backgroundColor: '#D2D6EF'
@@ -446,11 +472,47 @@ const styles = StyleSheet.create({
       width: 2,
       height: 2
     },
-    width: '20%',
+    width: '24%',
     height: 150,
     marginBottom: 10,
     justifyContent: 'center',
     alignContent: 'center'
+  },
+  kanjiMeta: {
+    flex: 1,
+    alignItems: 'center'
+  },
+  kanjiCanvas: {
+    flex: 2,
+    backgroundColor: '#FFF',
+    borderRadius: 4
+  },
+  kanjiFooter: {
+    flex: 1
+  },
+  kanjiEnglishName: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 28,
+  },
+  readings: {
+    width: '100%',
+    flexDirection: 'row'
+  },
+  onYomi: {
+    flex: 1,
+    alignItems: 'center'
+  },
+  kunYomi: {
+    flex: 1,
+    alignItems: 'center'
+  },
+  readingHeading: {
+    fontFamily: 'Roboto-Regular',
+    fontSize: 16
+  },
+  japaneseReading: {
+    fontFamily: 'NotoSansJP-Regular',
+    fontSize: 24
   }
 
 });
