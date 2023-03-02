@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -20,7 +20,9 @@ import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 // import kanjiListData from './kanjiList.js';
 
 // Import GlyphWiki data
-import glyphwikiData from './glyph-wiki-kanji-list.js';
+ import glyphwikiData from './glyph-wiki-kanji-list.js';
+
+import kanjiDict from './kanjiDictTest.js';
 
 // Prevent the splash screen from hiding until fonts have been loaded
 // SplashScreen.preventAutoHideAsync();
@@ -64,9 +66,20 @@ export default function App() {
 
     // Kanji List Component
   function KanjiListComponent({navigation}){
+  
+    for (const [kanjiEntry, kanjiData] of Object.entries(kanjiDict)) {
+      console.log(`${kanjiEntry}: ${kanjiData.id}, ${kanjiData.jlpt}`);
+
+
+
+    }
+
     return(
       <ScrollView>
         <View style={styles.kanjiGrid}>
+
+          
+
           {glyphwikiData.map((kanji)=>{
               return(
                 <TouchableOpacity 
@@ -170,7 +183,10 @@ export default function App() {
           <Text>
             Progress box
           </Text>
-          <TouchableOpacity style={[styles.standardBtn, styles.halfWidthBtn]} onPress={() => navigation.navigate("Kanji")}>
+          <TouchableOpacity
+            style={[styles.standardBtn,styles.halfWidthBtn]}
+            onPress={() => navigation.navigate("Kanji")}
+          >
             <Text style={styles.standardBtnText}>Study</Text>
           </TouchableOpacity>
         </View>
@@ -250,9 +266,15 @@ export default function App() {
               style={styles.standardBtn}
               onPress={()=>{
                 setMyKanji([...myKanji, '時'])
+                Alert.alert(`Added ${kanji.kanji} to My Kanji`)
               }}
             >
               <Text style={styles.standardBtnText}>Add to My Kanji +</Text>
+            </TouchableOpacity>
+            
+            {/* next kanji test */}
+            <TouchableOpacity>
+              <Text>Next kanji</Text>
             </TouchableOpacity>
           </View>
 

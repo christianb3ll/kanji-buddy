@@ -81,7 +81,6 @@ import 左 from './assets/glyph-images/左.svg';
 import 休 from './assets/glyph-images/休.svg';
 import 父 from './assets/glyph-images/父.svg';
 import 雨 from './assets/glyph-images/雨.svg';
-
 // N4 images
 import 会 from './assets/glyph-images/会.svg';
 import 同 from './assets/glyph-images/同.svg';
@@ -499,4 +498,4 @@ export const kanjiDict = {
     "漢":  {"id" : 245, "jlpt" : "N4", "image" : 漢},
 };
 
-export default kanjiList;
+export default kanjiDict;
