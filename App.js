@@ -1,4 +1,3 @@
-import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
@@ -8,9 +7,11 @@ import * as SplashScreen from 'expo-splash-screen';
 import { Font } from 'expo';
 import { useFonts } from 'expo-font';
 import { SvgXml, SvgCss } from 'react-native-svg';
-import { useState, useRef, useCallback } from 'react';
-// import { Canvas, CanvasRef } from '@benjeau/react-native-draw';
+import React, { useState, useRef, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Canvas, CanvasRef, CanvasControls } from '@benjeau/react-native-draw';
 // import * as Kanji from "kanji-react-icons/dist/kanji";
+import styles from './Styles.js'
 
 import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
@@ -25,21 +26,22 @@ import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 import kanjiDict from './kanjiDictTest.js';
 
 // Prevent the splash screen from hiding until fonts have been loaded
-// SplashScreen.preventAutoHideAsync();
-
-
-// const kanjiList = kanjiListData;
-
-
-// glyphwikiData.map((kanji)=>{
-//   console.log(kanji.kanji);
-// })
-
+SplashScreen.preventAutoHideAsync();
 
 
 export default function App() {
+  // Import My Kanji list 
+  const myKanjiData = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@my_kanji')
+      return jsonValue != null ? JSON.parse(jsonValue) : null;
+    } catch(e) {
+      // error reading value
+      console.log(e);
+    }
+  }
   // setup myKanji state
-  const [myKanji, setMyKanji] = useState(['人','国']);
+  const [myKanji, setMyKanji] = useState(myKanjiData == null ? undefined : myKanjiData);
 
   // Add custom fonts
   const [fontsLoaded] = useFonts({
@@ -50,42 +52,35 @@ export default function App() {
   });
 
   // Load fonts asynchronously: https://docs.expo.dev/guides/using-custom-fonts/
-  // const onLayoutRootView = useCallback(async () => {
-  //   if (fontsLoaded) {
-  //     await SplashScreen.hideAsync();
-  //   }
-  // }, [fontsLoaded]);
-
-  // if (!fontsLoaded) {
-  //   return null;
-  // }
-
-
-  // Add to NavigationContainer -- > onLayout={onLayoutRootView}
-
-
-    // Kanji List Component
-  function KanjiListComponent({navigation}){
-  
-    for (const [kanjiEntry, kanjiData] of Object.entries(kanjiDict)) {
-      console.log(`${kanjiEntry}: ${kanjiData.id}, ${kanjiData.jlpt}`);
-
-
-
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded) {
+      await SplashScreen.hideAsync();
     }
+  }, [fontsLoaded]);
 
+  if (!fontsLoaded) {
+    return null;
+  }
+
+  
+
+
+    // for (const [kanjiEntry, kanjiData] of Object.entries(kanjiDict)) {
+    //   console.log(`${kanjiEntry}: ${kanjiData.id}, ${kanjiData.jlpt}`);
+    // }
+
+
+  // Kanji List Component
+  const KanjiListComponent = function(props) {
     return(
       <ScrollView>
         <View style={styles.kanjiGrid}>
-
-          
-
-          {glyphwikiData.map((kanji)=>{
+          {props.kanjiList.map((kanji)=>{
               return(
                 <TouchableOpacity 
                   style={styles.kanjiCard}
                   key={kanji.kanji}
-                  onPress={() => navigation.navigate("Kanji", {kanji})}
+                  onPress={() => props.navigation.navigate("Kanji", {kanji})}
                 >
                   <SvgXml xml={kanji.image} width="100%" height="100%" />
                 </TouchableOpacity>
@@ -96,35 +91,137 @@ export default function App() {
     )
   }
 
+  // Component to display a single kanji's data
+  const Kanji = function(props) {
+    
+
+    return(
+      <View style={styles.container}>
+
+          {/* kanji meta */}
+          <View style={styles.kanjiMeta}>
+            {/* English name */}
+            <Text style={styles.kanjiEnglishName}>Day, Sun</Text>
+
+            <View style={styles.readings}>
+              {/* On Yomi */}
+              <View style={styles.onYomi}>
+                <Text style={styles.readingHeading}>On Yomi</Text>
+                <Text style={styles.japaneseReading}>ニチ, ジツ</Text>
+              </View>
+              
+              {/* Kun Yomi */}
+              <View style={styles.kunYomi}>
+                <Text style={styles.readingHeading}>Kun Yomi</Text>
+                <Text style={styles.japaneseReading}> ひ, -び, -か</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* kanji canvas */}
+          <View style={styles.kanjiCanvas}>
+            <SvgXml xml={props.kanjiObj.image} />
+          </View>
+          
+
+          <View style={styles.kanjiFooter}>
+            {/* add to myKanji */}
+            <TouchableOpacity
+              style={styles.standardBtn}
+              onPress={()=>{
+                AddToMyKanji(props.kanjiObj.kanji);
+                Alert.alert(`Added ${props.kanjiObj.kanji} to My Kanji`);
+              }}
+            >
+              <Text style={styles.standardBtnText}>Add to My Kanji +</Text>
+            </TouchableOpacity>
+            
+            {/* next kanji test */}
+            <TouchableOpacity>
+              <Text>Next kanji</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+    )
+  }
+
+  const KanjiCanvas = function (props) {
+    // setup the canvas
+    const canvasRef = useRef(null);
+    return(
+      <View>
+        {/* kanji canvas */}
+        <View style={styles.kanjiCanvas}>
+          <Canvas ref={canvasRef}  width={200} height={200}/>
+        </View>
+
+        {/* canvas control buttons */}
+        <View>
+          <TouchableOpacity>
+            <Text>Write</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={()=> {canvasRef.current?.clear()}}>
+            <Text>Erase</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    )
+  }
 
 
-  // export function KanjiCanvas (){
-  //   const canvasRef = useRef<CanvasRef>(null);
+  const JLPTFilters = function (props) {
+    return(
+      <View style={styles.jlptBtnContainer}>
+        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnActive]}><Text>All</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.jlptBtn}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N4</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N3</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N2</Text></TouchableOpacity>
+        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N1</Text></TouchableOpacity>
+      </View>
+    )
+  }
 
-  //   const handleUndo = () => {
-  //     canvasRef.current?.undo();
-  //   };
 
-  //   const handleClear = () => {
-  //     canvasRef.current?.clear();
-  //   };
+  // Add to My Kanji
+  function AddToMyKanji(kanji) {
+    // Setup the new kanji object
+    newKanji = {
+      [kanji]: {
+          added: true,
+          progress: 0
+        }
+    }
 
-  //   return (
-  //     <>
-  //       <Canvas
-  //         ref={canvasRef}
-  //         height={500}
-  //         color="red"
-  //         thickness={20}
-  //         opacity={0.6}
-  //         style={{ backgroundColor: 'black' }}
-  //       />
-  //       <Button title="Undo" onPress={handleUndo} />
-  //       <Button title="Clear" onPress={handleClear} />
-  //     </>
-  //   );
-  // };
+    // Add the kanji to MyKanji list
+    setMyKanji(myKanji => {
+      return(
+        myKanji == undefined ? newKanji : 
+        {
+          ...myKanji,
+          newKanji
+        }
+      )
+    })
+    console.log(myKanji);
+  }
 
+
+  // Get Kanji fuction
+  function GetKanjiMeta(kanji) {
+    let kanjiMeta;
+
+    // make api call
+    fetch(`https://kanjiapi.dev/v1/kanji/${kanji}`)
+    .then((response) => response.json())
+    .then((json) => {
+      console.log(json);
+      kanjiMeta = json;
+
+      return kanjiMeta;
+    });
+    
+  }
 
 
 
@@ -132,7 +229,7 @@ export default function App() {
   // Dashboard page
   function DashboardPage({ navigation }) {
     return (
-      <View style={styles.container}>
+      <View style={styles.container} onLayout={onLayoutRootView}>
 
         <View style={styles.dashboardBox}>
           <Text style={styles.sectionHeading}>Study</Text>
@@ -148,34 +245,31 @@ export default function App() {
           <TouchableOpacity style={styles.standardBtn} onPress={() => navigation.navigate("Review Kanji")}>
             <Text style={styles.standardBtnText}>Start Reviewing</Text>
           </TouchableOpacity>
-        </View>
+        </View>   
 
-        <View>
-
-          {/* {console.log(kanjitest)} */}
-          {/* <SvgCss xml={Kanji.Kanji七.toString()}  /> */}
-          
-        </View>
-        
       </View>
       );
     };
+
+
+
+
 
   // Create the study navigation stack
   const StudyStack = createStackNavigator();
 
   // Study page
-  function StudyPage({ navigation }) {
+  function StudyTab({ navigation }) {
     return (
         <StudyStack.Navigator>
-          <StudyStack.Screen name='Study' options={{ headerShown: false }} component={StudyHomePage}/>
-          <StudyStack.Screen name='Kanji' component={KanjiPracticePage}/>
+          <StudyStack.Screen name='Study' options={{ headerShown: false }} component={StudyDashboard}/>
+          <StudyStack.Screen name='Kanji' component={StudyKanjiPage}/>
         </StudyStack.Navigator>
       );
     };
 
-  // Study home page
-  function StudyHomePage({ navigation }) {
+  // Study Dashboard
+  function StudyDashboard({ navigation }) {
     return (
       <View style={styles.container}>
         {/* study CTA */}
@@ -192,140 +286,64 @@ export default function App() {
         </View>
 
         {/* JLPT level select */}
-        <View style={styles.jlptBtnContainer}>
-          <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnActive]}><Text>All</Text></TouchableOpacity>
-          <TouchableOpacity style={styles.jlptBtn}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N4</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N3</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N2</Text></TouchableOpacity>
-          <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N1</Text></TouchableOpacity>
-        </View>
+        <JLPTFilters />
 
         {/* kanji grid */}
-          <KanjiListComponent navigation={navigation}/>
+          <KanjiListComponent navigation={navigation} kanjiList={glyphwikiData}/>
       </View>
         
       );
     };
 
   // Kanji pactice page
-  function KanjiPracticePage({ route, navigation }) {
+  function StudyKanjiPage({ route, navigation }) {
     const [kanjiInfo, setKanjiInfo] = useState();
 
     const kanji = route.params.kanji;
 
-    // Get the kanji details
-    const makeCall = function() {
-      // make api call
-      fetch(`https://kanjiapi.dev/v1/kanji/${kanji.kanji}`)
-      .then((response) => response.json())
-      .then((json) => {
-        console.log(json);
-        setKanjiInfo(json);
-      });
-    }
-
     if (kanjiInfo === undefined){
       return (
-        <View style={styles.container}>
-          {/* kanji meta */}
-          <View style={styles.kanjiMeta}>
-            {/* English name */}
-            <Text style={styles.kanjiEnglishName}>Day, Sun</Text>
+          // <View>
 
-            
-            <View style={styles.readings}>
-              {/* On Yomi */}
-              <View style={styles.onYomi}>
-                <Text style={styles.readingHeading}>On Yomi</Text>
-                <Text style={styles.japaneseReading}>ニチ, ジツ</Text>
-              </View>
-              
-
-              {/* Kun Yomi */}
-              <View style={styles.kunYomi}>
-                <Text style={styles.readingHeading}>Kun Yomi</Text>
-                <Text style={styles.japaneseReading}> ひ, -び, -か</Text>
-              </View>
-              
-            </View>
-
-
-          </View>
-
-          
-
-          {/* kanji image / canvas */}
-          <View style={styles.kanjiCanvas}>
-            <SvgXml xml={kanji.image} />
-          </View>
-
-          <View style={styles.kanjiFooter}>
-            {/* add to myKanji */}
-            <TouchableOpacity
-              style={styles.standardBtn}
-              onPress={()=>{
-                setMyKanji([...myKanji, '時'])
-                Alert.alert(`Added ${kanji.kanji} to My Kanji`)
-              }}
-            >
-              <Text style={styles.standardBtnText}>Add to My Kanji +</Text>
-            </TouchableOpacity>
-            
-            {/* next kanji test */}
-            <TouchableOpacity>
-              <Text>Next kanji</Text>
-            </TouchableOpacity>
-          </View>
-
-
-          {/* <Text>This is a Kanji page... no current kanji</Text>
-          <TouchableOpacity onPress={makeCall}>
-            <Text>Get Kanji {kanji.kanji} </Text>
-          </TouchableOpacity> */}
-        </View>
+          // </View>
+          <Kanji kanjiObj={kanji} />
         );
     } else {
       return (
-        <View style={styles.container}>
-          <Text>{kanjiInfo.kanji}</Text>
-          <Text>Kun Yomi Reading</Text>
-          <Text>{kanjiInfo.kun_readings}</Text>
-          <Text>On Yomi Reading</Text>
-          <Text>{kanjiInfo.on_readings}</Text>
-          <Text>{kanjiInfo.meanings}</Text>
-        </View>
+        <Kanji kanjiObj={kanji} />
       );
     }
     };
+
+
+
+
 
   // Create the review navigation stack
   const ReviewStack = createStackNavigator();
 
   // Review page navigation
-  function ReviewPage({ navigation }) {
+  function ReviewTab({ navigation }) {
     return (
         <StudyStack.Navigator>
-          <StudyStack.Screen name='Review' options={{ headerShown: false }} component={ReviewHomePage}/>
-          <StudyStack.Screen name='Kanji' component={KanjiReviewPage}/>
+          <StudyStack.Screen name='Review' options={{ headerShown: false }} component={ReviewDashboard}/>
+          <StudyStack.Screen name='Kanji' component={ReviewKanjiPage}/>
         </StudyStack.Navigator>
       );
     };
 
   // Review listing page
-  function ReviewHomePage({ navigation }) {
+  function ReviewDashboard({ navigation }) {
     return (
       <View style={styles.container}>
-        <Text>You haven't learned any Kanji yet...</Text>
-        <TouchableOpacity onPress={() => navigation.navigate("Kanji")}>
-          <Text>Review</Text>
-        </TouchableOpacity>
+        {/* <Text>You haven't learned any Kanji yet...</Text> */}
+        <KanjiCanvas />
       </View>
       );
     };
 
   // Kanji review page
-  function KanjiReviewPage({ navigation }) {
+  function ReviewKanjiPage({ navigation }) {
     return (
       <View style={styles.container}>
         <Text>Time to review some kanji</Text>
@@ -333,17 +351,48 @@ export default function App() {
       );
     };
 
+
+
+
+
+
+
+
+  // MyKanji stack
+  const MyKanjiStack = createStackNavigator();
+
+  function MyKanjiTab({ navigation }) {
+    return (
+        <MyKanjiStack.Navigator>
+          <MyKanjiStack.Screen name='MyKanji Dashboard' options={{ headerShown: false }} component={MyKanjiDashboard}/>
+          <MyKanjiStack.Screen name='Kanji' component={MyKanjiKanjiPage}/>
+        </MyKanjiStack.Navigator>
+      );
+    };
+
   // MyKanji page
-  function MyKanjiPage({ navigation }) {
+  function MyKanjiDashboard({ navigation }) {
     return (
       <View style={styles.container}>
-        <Text>You haven't learned any Kanji yet...</Text>
-        <Text>{myKanji.map((kanji)=> {
+        <Text>You haven't added any Kanji yet...</Text>
+        {/* <Text>{myKanji.map((kanji)=> {
           return kanji + ", ";
-        })}</Text>
+        })}</Text> */}
       </View>
       );
     };
+
+  // MyKanji kanji page
+  function MyKanjiKanjiPage({ navigation }) {
+    return (
+      <View style={styles.container}>
+        
+      </View>
+      );
+    };
+
+
+
 
   // Navigation Header
   function HeaderComponent() {
@@ -351,12 +400,8 @@ export default function App() {
       <SafeAreaView>
         <View style={styles.header}>
           <View style={styles.headerContent}>
-
+            {/* add the logo image */}
             <SvgCss xml={LogoImg} width="250" height="100"/>
-
-            {/* <TouchableOpacity>
-              <Text>Menu</Text>
-            </TouchableOpacity> */}
           </View>
         </View>
       </SafeAreaView>
@@ -372,15 +417,15 @@ export default function App() {
   };
 
   return (
-    <NavigationContainer >
-    <TabNav.Navigator screenOptions={({ route }) => ({
+    <NavigationContainer>
+      <TabNav.Navigator screenOptions={({ route }) => ({
           headerShown: true,
           tabBarLabelStyle: styles.tabs,
           tabBarIcon: ({ color }) => {
             // add custom icons
             let icon;
             // set icon based on route name
-            if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon}  />;
+            if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon} />;
             if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
             if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
             if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
@@ -392,149 +437,12 @@ export default function App() {
         })}
       >
         <TabNav.Screen name="Dashboard" component={DashboardPage} options={Header} />
-        <TabNav.Screen name="Study Kanji" component={StudyPage} options={Header} />
-        <TabNav.Screen name="Review Kanji" component={ReviewPage}options={Header} />
-        <TabNav.Screen name="My Kanji" component={MyKanjiPage} options={Header} />
+        <TabNav.Screen name="Study Kanji" component={StudyTab} options={Header} />
+        <TabNav.Screen name="Review Kanji" component={ReviewTab}options={Header} />
+        <TabNav.Screen name="My Kanji" component={MyKanjiTab} options={Header} />
       </TabNav.Navigator>
     </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 10,
-    backgroundColor: '#F7F7F9',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  header: {
-    backgroundColor: '#FFF',
-    height: 100,
-  },
-  headerContent: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  tabs: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 14,
-    color: '#000'
-  },
-  dashboardBox: {
-    width: '100%',
-    backgroundColor: '#FFF',
-    borderColor: '#4059AD',
-    borderWidth: 2,
-    borderRadius: 8,
-    alignItems: 'center'
-  },
-  dashboardBoxPurple: {
-    backgroundColor: '#D2D6EF'
-  },
-  sectionHeading: {
-    fontFamily: 'Quicksand-Medium',
-    textAlign: 'center',
-    fontSize: 24
-  },
-  bodyText: {
-    fontFamily: 'Roboto-Regular'
-  },
-  standardBtn: {
-    backgroundColor: '#4059AD',
-    width: 200,
-    height: 50,
-    borderRadius: 12,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  halfWidthBtn: {
-    width: 100
-  },
-  standardBtnText: {
-    fontFamily: 'Inter-Bold',
-    fontSize: 16,
-    textAlign: 'center',
-    color: '#FFF'
-  },
-  jlptBtnContainer: {
-    flexDirection: 'row'
-  },
-  jlptBtn: {
-    width: 40,
-    height: 25,
-    backgroundColor: '#4059AD',
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  jlptBtnText: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 16
-  },
-  jlptBtnActive: {
-    backgroundColor: '#D2D6EF',
-  },
-  jlptBtnDisabled: {
-    opacity: 0.3
-  },
-  kanjiGrid: {
-    flex: 1,
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-  },
-  kanjiCard: {
-    backgroundColor: '#FFF',
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 8,
-    shadowOffset: {
-      width: 2,
-      height: 2
-    },
-    width: '24%',
-    height: 150,
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignContent: 'center'
-  },
-  kanjiMeta: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  kanjiCanvas: {
-    flex: 2,
-    backgroundColor: '#FFF',
-    borderRadius: 4
-  },
-  kanjiFooter: {
-    flex: 1
-  },
-  kanjiEnglishName: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 28,
-  },
-  readings: {
-    width: '100%',
-    flexDirection: 'row'
-  },
-  onYomi: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  kunYomi: {
-    flex: 1,
-    alignItems: 'center'
-  },
-  readingHeading: {
-    fontFamily: 'Roboto-Regular',
-    fontSize: 16
-  },
-  japaneseReading: {
-    fontFamily: 'NotoSansJP-Regular',
-    fontSize: 24
-  }
 
-});
