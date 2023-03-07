@@ -30,18 +30,22 @@ SplashScreen.preventAutoHideAsync();
 
 
 export default function App() {
+  const [myKanji, setMyKanji] = useState(undefined);
+
   // Import My Kanji list 
   const myKanjiData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@my_kanji')
-      return jsonValue != null ? JSON.parse(jsonValue) : null;
+      return jsonValue != null ? setMyKanji(JSON.parse(jsonValue)) : null;
     } catch(e) {
       // error reading value
       console.log(e);
     }
   }
   // setup myKanji state
-  const [myKanji, setMyKanji] = useState(myKanjiData == null ? undefined : myKanjiData);
+  // setMyKanji(myKanjiData);
+  // const [myKanji, setMyKanji] = useState(myKanjiData() == null ? undefined : myKanjiData());
+  console.log(myKanji);
 
   // Add custom fonts
   const [fontsLoaded] = useFonts({
@@ -93,8 +97,6 @@ export default function App() {
 
   // Component to display a single kanji's data
   const Kanji = function(props) {
-    
-
     return(
       <View style={styles.container}>
 
@@ -163,6 +165,9 @@ export default function App() {
           <TouchableOpacity onPress={()=> {canvasRef.current?.clear()}}>
             <Text>Erase</Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={()=> {console.log(canvasRef.current?.getPaths())}}>
+            <Text>Check</Text>
+          </TouchableOpacity>
         </View>
       </View>
     )
@@ -185,23 +190,29 @@ export default function App() {
 
   // Add to My Kanji
   function AddToMyKanji(kanji) {
-    // Setup the new kanji object
-    newKanji = {
-      [kanji]: {
+
+    let kanjiToAdd;
+
+    if(myKanji == undefined){
+      kanjiToAdd = {
+        [kanji]: {
           added: true,
           progress: 0
         }
+      }
+    } else {
+      kanjiToAdd = {
+        ...myKanji,
+        [kanji]: {
+          added: true,
+          progress: 0
+        }
+      }
     }
 
     // Add the kanji to MyKanji list
     setMyKanji(myKanji => {
-      return(
-        myKanji == undefined ? newKanji : 
-        {
-          ...myKanji,
-          newKanji
-        }
-      )
+      return(kanjiToAdd)
     })
     console.log(myKanji);
   }
