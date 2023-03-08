@@ -18,6 +18,7 @@ import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
 import StudyIcon from './assets/images/study-icon.svg';
 import ReviewIcon from './assets/images/review-icon.svg';
+import SettingsIcon from './assets/images/settings-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
 import EraserIcon from './assets/images/eraser-icon.svg';
 // import kanjiListData from './kanjiList.js';
@@ -422,10 +423,10 @@ export default function App() {
   // Review page navigation
   // function ReviewTab({ navigation }) {
   //   return (
-  //       <StudyStack.Navigator>
-  //         <StudyStack.Screen name='Review' options={{ headerShown: false }} component={ReviewDashboard}/>
-  //         <StudyStack.Screen name='Kanji' component={ReviewKanjiPage}/>
-  //       </StudyStack.Navigator>
+  //       <ReviewStack.Navigator>
+  //         <ReviewStack.Screen name='Review' options={{ headerShown: false }} component={ReviewDashboard}/>
+  //         <ReviewStack.Screen name='Kanji' component={ReviewKanjiPage}/>
+  //       </ReviewStack.Navigator>
   //     );
   //   };
 
@@ -449,8 +450,40 @@ export default function App() {
   //   };
 
 
+  // Create the Settings navigation stack
+  const SettingsStack = createStackNavigator();
 
+  // Settings Navigation
+  function SettingsTab({ navigation }) {
+    return (
+        <SettingsStack.Navigator>
+          <SettingsStack.Screen name='Settings' options={{ headerShown: false }} component={SettingsDashboard}/>
+          <SettingsStack.Screen name='About' component={AboutPage}/>
+        </SettingsStack.Navigator>
+      );
+    };
 
+  // Main Settings page
+  function SettingsDashboard({ navigation }) {
+    return (
+      <View style={styles.container}>
+        <Text>Settings page</Text>
+        <TouchableOpacity onPress={navigation.navigate('About')}>
+          <Text>About</Text>
+        </TouchableOpacity>
+
+      </View>
+      );
+    };
+
+  // About page
+  function AboutPage({ navigation }) {
+    return (
+      <View style={styles.container}>
+        <Text>About page</Text>
+      </View>
+      );
+    };
 
 
 
@@ -549,6 +582,7 @@ export default function App() {
             // set icon based on route name
             if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon} />;
             if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
+            if(route.name === 'Settings') icon = <SvgXml xml={SettingsIcon}  />;
             // if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
             if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
 
@@ -562,6 +596,7 @@ export default function App() {
         <TabNav.Screen name="Study Kanji" component={StudyTab} options={Header} />
         {/* <TabNav.Screen name="Review Kanji" component={ReviewTab}options={Header} /> */}
         <TabNav.Screen name="My Kanji" component={MyKanjiTab} options={Header} />
+        <TabNav.Screen name="Settings" component={SettingsTab} options={Header} />
       </TabNav.Navigator>
     </NavigationContainer>
   );
