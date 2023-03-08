@@ -98,16 +98,23 @@ const styles = StyleSheet.create({
       height: 150,
       marginBottom: 10,
       justifyContent: 'center',
-      alignContent: 'center'
+      alignContent: 'center',
+    },
+    kanjiCardInactive: {
+      opacity: 0.2
     },
     kanjiMeta: {
       flex: 1,
       alignItems: 'center'
     },
     kanjiCanvas: {
-      flex: 2,
       backgroundColor: '#FFF',
-      borderRadius: 4
+      borderRadius: 4,
+      justifyContent: "center",
+      alignItems: "center"
+    },
+    canvasBtn: {
+      backgroundColor: '#000'
     },
     kanjiFooter: {
       flex: 1

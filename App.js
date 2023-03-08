@@ -1,13 +1,14 @@
-import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, SafeAreaView, Image, Button, TouchableOpacity, ScrollView, Alert, Dimensions } from 'react-native';
 import 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as SplashScreen from 'expo-splash-screen';
+import * as Haptics from 'expo-haptics';
 import { Font } from 'expo';
 import { useFonts } from 'expo-font';
 import { SvgXml, SvgCss } from 'react-native-svg';
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Canvas, CanvasRef, CanvasControls } from '@benjeau/react-native-draw';
 // import * as Kanji from "kanji-react-icons/dist/kanji";
@@ -18,22 +19,24 @@ import DashboardIcon from './assets/images/dashboard-icon.svg';
 import StudyIcon from './assets/images/study-icon.svg';
 import ReviewIcon from './assets/images/review-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
+import EraserIcon from './assets/images/eraser-icon.svg';
 // import kanjiListData from './kanjiList.js';
 
 // Import GlyphWiki data
- import glyphwikiData from './glyph-wiki-kanji-list.js';
+//import glyphwikiData from './glyph-wiki-kanji-list.js';
 
 import kanjiDict from './kanjiDictTest.js';
 
 // Prevent the splash screen from hiding until fonts have been loaded
 SplashScreen.preventAutoHideAsync();
 
+const canvasWidth = Dimensions.get('window').width -100;
 
 export default function App() {
   const [myKanji, setMyKanji] = useState(undefined);
 
   // Import My Kanji list 
-  const myKanjiData = async () => {
+  const loadKanjiData = async () => {
     try {
       const jsonValue = await AsyncStorage.getItem('@my_kanji')
       return jsonValue != null ? setMyKanji(JSON.parse(jsonValue)) : null;
@@ -42,7 +45,22 @@ export default function App() {
       console.log(e);
     }
   }
+
+  const saveKanjiData = async (value) => {
+    try {
+      const jsonValue = JSON.stringify(value)
+      await AsyncStorage.setItem('@my_kanji', jsonValue)
+    } catch (e) {
+      // saving error
+      console.log(e);
+    }
+  }
+
   // setup myKanji state
+  useEffect(() => {
+    loadKanjiData();
+  }, [])
+
   // setMyKanji(myKanjiData);
   // const [myKanji, setMyKanji] = useState(myKanjiData() == null ? undefined : myKanjiData());
   console.log(myKanji);
@@ -66,9 +84,6 @@ export default function App() {
     return null;
   }
 
-  
-
-
     // for (const [kanjiEntry, kanjiData] of Object.entries(kanjiDict)) {
     //   console.log(`${kanjiEntry}: ${kanjiData.id}, ${kanjiData.jlpt}`);
     // }
@@ -82,11 +97,11 @@ export default function App() {
           {props.kanjiList.map((kanji)=>{
               return(
                 <TouchableOpacity 
-                  style={styles.kanjiCard}
-                  key={kanji.kanji}
+                  style={[styles.kanjiCard, inMyKanji(kanji) ? '' : styles.kanjiCardInactive]}
+                  key={kanji}
                   onPress={() => props.navigation.navigate("Kanji", {kanji})}
                 >
-                  <SvgXml xml={kanji.image} width="100%" height="100%" />
+                  <SvgXml xml={getKanjiImage(kanji)} width="100%" height="100%" />
                 </TouchableOpacity>
               )})
           }
@@ -94,6 +109,8 @@ export default function App() {
       </ScrollView>
     )
   }
+
+
 
   // Component to display a single kanji's data
   const Kanji = function(props) {
@@ -121,8 +138,8 @@ export default function App() {
           </View>
 
           {/* kanji canvas */}
-          <View style={styles.kanjiCanvas}>
-            <SvgXml xml={props.kanjiObj.image} />
+          <View style={[styles.kanjiCanvas, {width:canvasWidth}, {height:canvasWidth}]}>
+            <SvgXml xml={getKanjiImage(props.kanjiObj)} />
           </View>
           
 
@@ -131,8 +148,8 @@ export default function App() {
             <TouchableOpacity
               style={styles.standardBtn}
               onPress={()=>{
-                AddToMyKanji(props.kanjiObj.kanji);
-                Alert.alert(`Added ${props.kanjiObj.kanji} to My Kanji`);
+                addToMyKanji(props.kanjiObj);
+                Alert.alert(`Added ${props.kanjiObj} to My Kanji`);
               }}
             >
               <Text style={styles.standardBtnText}>Add to My Kanji +</Text>
@@ -154,7 +171,7 @@ export default function App() {
       <View>
         {/* kanji canvas */}
         <View style={styles.kanjiCanvas}>
-          <Canvas ref={canvasRef}  width={200} height={200}/>
+          <Canvas ref={canvasRef}  width={canvasWidth} height={canvasWidth}/>
         </View>
 
         {/* canvas control buttons */}
@@ -162,8 +179,8 @@ export default function App() {
           <TouchableOpacity>
             <Text>Write</Text>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> {canvasRef.current?.clear()}}>
-            <Text>Erase</Text>
+          <TouchableOpacity style={styles.canvasBtn} onPress={()=> {canvasRef.current?.clear()}}>
+            <SvgXml xml={EraserIcon} />
           </TouchableOpacity>
           <TouchableOpacity onPress={()=> {console.log(canvasRef.current?.getPaths())}}>
             <Text>Check</Text>
@@ -178,8 +195,8 @@ export default function App() {
     return(
       <View style={styles.jlptBtnContainer}>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnActive]}><Text>All</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.jlptBtn}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
-        <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N4</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.jlptBtn} onPress={() => props.func(filterByJLPT(props.list, 'N5'))}><Text style={{color: '#fff'}}>N5</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.jlptBtn} onPress={() => props.func(filterByJLPT(props.list, 'N4'))}><Text>N4</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N3</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N2</Text></TouchableOpacity>
         <TouchableOpacity style={[styles.jlptBtn, styles.jlptBtnDisabled]}><Text>N1</Text></TouchableOpacity>
@@ -189,7 +206,7 @@ export default function App() {
 
 
   // Add to My Kanji
-  function AddToMyKanji(kanji) {
+  function addToMyKanji(kanji) {
 
     let kanjiToAdd;
 
@@ -214,12 +231,18 @@ export default function App() {
     setMyKanji(myKanji => {
       return(kanjiToAdd)
     })
+
+    saveKanjiData(myKanji);
+
+    Haptics.notificationAsync(
+      Haptics.NotificationFeedbackType.Success
+    )
     console.log(myKanji);
   }
 
 
   // Get Kanji fuction
-  function GetKanjiMeta(kanji) {
+  function getKanjiMeta(kanji) {
     let kanjiMeta;
 
     // make api call
@@ -234,29 +257,90 @@ export default function App() {
     
   }
 
+  // returns the full kanji list sorted by ID
+  function getFullKanjiList() {
+    let kanjiArray;
+
+    kanjiArray = Object.keys(kanjiDict).sort((a, b) => {
+      return kanjiDict[a].id - kanjiDict[b].id;
+    })
+    return kanjiArray;
+  }
+
+  // returns a filtered list based on given JLPT level
+  function filterByJLPT(list, level){
+    let newList = [];
+
+    for(var i = 0; i < list.length; i++){
+      if(kanjiDict[list[i]].jlpt == level){
+        newList.push(list[i]);
+      }
+    }
+    return newList;
+  }
+
+  function getMyKanji() {
+    if (myKanji == undefined) return [];
+    let kanjiArray;
+
+    kanjiArray = Object.keys(myKanji);
+    console.log(kanjiArray);
+    return kanjiArray;
+  }
+
+  function inMyKanji(kanji) {
+    if(myKanji == undefined) return false;
+    return kanji in myKanji;
+  }
+
+  function getKanjiImage(kanji) {
+    let image = kanjiDict[kanji].image;
+
+    return image;
+  }
+
 
 
 
   // Dashboard page
   function DashboardPage({ navigation }) {
+
+    if(myKanji == undefined){
+      return (
+        <View style={styles.container} onLayout={onLayoutRootView}>
+          <View style={styles.dashboardBox}>
+            <Text style={styles.sectionHeading}>Study</Text>
+            <Text style={styles.bodyText}>It looks like you're new here!</Text>
+            <TouchableOpacity style={styles.standardBtn} onPress={() => navigation.navigate("Study Kanji")}>
+              <Text style={styles.standardBtnText}>Start Learning</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )
+    } else {
+      return(
+        <View style={styles.container} onLayout={onLayoutRootView}>
+          <View style={styles.dashboardBox}>
+            <Text style={styles.sectionHeading}>Your Progress</Text>
+            <Text style={styles.bodyText}>Welcome back...</Text>
+          </View>
+        </View>
+      )
+    }
+    
+
     return (
       <View style={styles.container} onLayout={onLayoutRootView}>
 
-        <View style={styles.dashboardBox}>
-          <Text style={styles.sectionHeading}>Study</Text>
-          <Text style={styles.bodyText}>It looks like you're new here!</Text>
-          <TouchableOpacity style={styles.standardBtn} onPress={() => navigation.navigate("Study Kanji")}>
-            <Text style={styles.standardBtnText}>Start Learning</Text>
-          </TouchableOpacity>
-        </View>
+        
 
-        <View style={[styles.dashboardBox, styles.dashboardBoxPurple]}>
+        {/* <View style={[styles.dashboardBox, styles.dashboardBoxPurple]}>
           <Text style={styles.sectionHeading}>Review</Text>
           <Text style={styles.bodyText}>You have 22 reviews waiting</Text>
           <TouchableOpacity style={styles.standardBtn} onPress={() => navigation.navigate("Review Kanji")}>
             <Text style={styles.standardBtnText}>Start Reviewing</Text>
           </TouchableOpacity>
-        </View>   
+        </View>    */}
 
       </View>
       );
@@ -281,6 +365,8 @@ export default function App() {
 
   // Study Dashboard
   function StudyDashboard({ navigation }) {
+    const [studyList, setStudyList] = useState(getFullKanjiList());
+
     return (
       <View style={styles.container}>
         {/* study CTA */}
@@ -297,10 +383,10 @@ export default function App() {
         </View>
 
         {/* JLPT level select */}
-        <JLPTFilters />
+        <JLPTFilters list={studyList} func={setStudyList}/>
 
         {/* kanji grid */}
-          <KanjiListComponent navigation={navigation} kanjiList={glyphwikiData}/>
+        <KanjiListComponent navigation={navigation} kanjiList={studyList}/>
       </View>
         
       );
@@ -331,36 +417,36 @@ export default function App() {
 
 
   // Create the review navigation stack
-  const ReviewStack = createStackNavigator();
+  // const ReviewStack = createStackNavigator();
 
   // Review page navigation
-  function ReviewTab({ navigation }) {
-    return (
-        <StudyStack.Navigator>
-          <StudyStack.Screen name='Review' options={{ headerShown: false }} component={ReviewDashboard}/>
-          <StudyStack.Screen name='Kanji' component={ReviewKanjiPage}/>
-        </StudyStack.Navigator>
-      );
-    };
+  // function ReviewTab({ navigation }) {
+  //   return (
+  //       <StudyStack.Navigator>
+  //         <StudyStack.Screen name='Review' options={{ headerShown: false }} component={ReviewDashboard}/>
+  //         <StudyStack.Screen name='Kanji' component={ReviewKanjiPage}/>
+  //       </StudyStack.Navigator>
+  //     );
+  //   };
 
-  // Review listing page
-  function ReviewDashboard({ navigation }) {
-    return (
-      <View style={styles.container}>
-        {/* <Text>You haven't learned any Kanji yet...</Text> */}
-        <KanjiCanvas />
-      </View>
-      );
-    };
+  // // Review listing page
+  // function ReviewDashboard({ navigation }) {
+  //   return (
+  //     <View style={styles.container}>
+  //       {/* <Text>You haven't learned any Kanji yet...</Text> */}
+  //       <KanjiCanvas navigation={navigation} />
+  //     </View>
+  //     );
+  //   };
 
-  // Kanji review page
-  function ReviewKanjiPage({ navigation }) {
-    return (
-      <View style={styles.container}>
-        <Text>Time to review some kanji</Text>
-      </View>
-      );
-    };
+  // // Kanji review page
+  // function ReviewKanjiPage({ navigation }) {
+  //   return (
+  //     <View style={styles.container}>
+  //       <Text>Time to review some kanji</Text>
+  //     </View>
+  //     );
+  //   };
 
 
 
@@ -383,12 +469,37 @@ export default function App() {
 
   // MyKanji page
   function MyKanjiDashboard({ navigation }) {
+
+    const myKanjiListing = ()=> {
+      if(myKanji == undefined){
+        return(
+
+          <Text>You haven't added any Kanji yet...</Text>
+        )
+      } else {
+        return(
+          // <View>
+          //    <Text>
+          //     You've added kanji... we don't know which ones
+          //   </Text>
+          //     <TouchableOpacity onPress={()=>{getMyKanji()}}>
+          //       <Text>Check</Text>
+          //     </TouchableOpacity>
+          // </View>
+          <View>
+            <JLPTFilters />
+            <KanjiListComponent navigation={navigation} kanjiList={getMyKanji()} />
+          </View>
+          
+         
+        )
+      }
+    }
+
     return (
       <View style={styles.container}>
-        <Text>You haven't added any Kanji yet...</Text>
-        {/* <Text>{myKanji.map((kanji)=> {
-          return kanji + ", ";
-        })}</Text> */}
+        {/* <Text>You haven't added any Kanji yet...</Text> */}
+        {myKanjiListing()}
       </View>
       );
     };
@@ -438,7 +549,7 @@ export default function App() {
             // set icon based on route name
             if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon} />;
             if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
-            if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
+            // if(route.name === 'Review Kanji') icon = <SvgXml xml={ReviewIcon}  />;
             if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
 
             return icon;
@@ -449,7 +560,7 @@ export default function App() {
       >
         <TabNav.Screen name="Dashboard" component={DashboardPage} options={Header} />
         <TabNav.Screen name="Study Kanji" component={StudyTab} options={Header} />
-        <TabNav.Screen name="Review Kanji" component={ReviewTab}options={Header} />
+        {/* <TabNav.Screen name="Review Kanji" component={ReviewTab}options={Header} /> */}
         <TabNav.Screen name="My Kanji" component={MyKanjiTab} options={Header} />
       </TabNav.Navigator>
     </NavigationContainer>
