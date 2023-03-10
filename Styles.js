@@ -1,8 +1,11 @@
-import { StyleSheet } from "react-native";
+import { StyleSheet, Dimensions } from "react-native";
+
+const deviceWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
     container: {
       flex: 1,
+      width: deviceWidth,
       padding: 10,
       backgroundColor: '#F7F7F9',
       alignItems: 'center',
@@ -29,10 +32,14 @@ const styles = StyleSheet.create({
       borderColor: '#4059AD',
       borderWidth: 2,
       borderRadius: 8,
-      alignItems: 'center'
+      alignItems: 'center',
+      paddingTop: '5%',
+      paddingBottom: '5%',
     },
     dashboardBoxPurple: {
-      backgroundColor: '#D2D6EF'
+      backgroundColor: '#D2D6EF',
+      flexDirection: 'row',
+      justifyContent: 'space-around'
     },
     sectionHeading: {
       fontFamily: 'Quicksand-Medium',
@@ -40,7 +47,8 @@ const styles = StyleSheet.create({
       fontSize: 24
     },
     bodyText: {
-      fontFamily: 'Roboto-Regular'
+      fontFamily: 'Roboto-Regular',
+      marginBottom: 10
     },
     standardBtn: {
       backgroundColor: '#4059AD',
@@ -48,7 +56,7 @@ const styles = StyleSheet.create({
       height: 50,
       borderRadius: 12,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
     },
     halfWidthBtn: {
       width: 100
@@ -60,19 +68,24 @@ const styles = StyleSheet.create({
       color: '#FFF'
     },
     jlptBtnContainer: {
-      flexDirection: 'row'
+      width: '100%',
+      flexDirection: 'row',
+      marginTop: 10,
+      marginBottom: 10
     },
     jlptBtn: {
-      width: 40,
-      height: 25,
+      width: 48,
+      height: 30,
       backgroundColor: '#4059AD',
       borderRadius: 8,
       justifyContent: 'center',
-      alignItems: 'center'
+      alignItems: 'center',
+      marginRight: 5
     },
     jlptBtnText: {
       fontFamily: 'Roboto-Regular',
-      fontSize: 16
+      fontSize: 16,
+      color: '#FFF'
     },
     jlptBtnActive: {
       backgroundColor: '#D2D6EF',
@@ -84,6 +97,7 @@ const styles = StyleSheet.create({
       flex: 1,
       flexDirection: 'row',
       flexWrap: 'wrap',
+      width: '100%'
     },
     kanjiCard: {
       backgroundColor: '#FFF',
@@ -94,18 +108,17 @@ const styles = StyleSheet.create({
         width: 2,
         height: 2
       },
-      width: '24%',
-      height: 150,
-      marginBottom: 10,
-      justifyContent: 'center',
-      alignContent: 'center',
+      width: deviceWidth/5,
+      height: (deviceWidth/5)*1.5,
+      margin: 5,
     },
     kanjiCardInactive: {
       opacity: 0.2
     },
     kanjiMeta: {
       flex: 1,
-      alignItems: 'center'
+      alignItems: 'center',
+      justifyContent: "center"
     },
     kanjiCanvas: {
       backgroundColor: '#FFF',
@@ -114,10 +127,16 @@ const styles = StyleSheet.create({
       alignItems: "center"
     },
     canvasBtn: {
-      backgroundColor: '#000'
+      padding: 10,
+      marginTop: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#000',
+      borderRadius: 8
     },
     kanjiFooter: {
-      flex: 1
+      flex: 1,
+      justifyContent: 'center'
     },
     kanjiEnglishName: {
       fontFamily: 'Roboto-Regular',
@@ -141,7 +160,39 @@ const styles = StyleSheet.create({
     },
     japaneseReading: {
       fontFamily: 'NotoSansJP-Regular',
-      fontSize: 24
+      fontSize: 14
+    },
+    settingsContainer: {
+      width: '100%'
+    },
+    progressBar: {
+      flex: 4,
+      position: 'relative',
+      width: '100%',
+      borderRadius: 4,
+      borderWidth: 1,
+      borderColor: '#0E0004',
+      backgroundColor: 'transparent'
+    },
+    progressBarFill: {
+      position: 'absolute',
+      backgroundColor: '#91EB8F',
+      height: '100%'
+    },
+    progressBarText: {
+      fontSize: 12
+    },
+    progressSection: {
+      width: '50%',
+      marginTop: 10,
+      marginBottom: 10
+    },
+    progressBlock: {
+      flexDirection: 'row',
+      marginBottom: 10
+    },
+    progressLabel: {
+      flex: 1,
     }
   }
   );
