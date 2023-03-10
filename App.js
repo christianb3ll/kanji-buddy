@@ -14,23 +14,30 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Canvas, CanvasRef, CanvasControls } from '@benjeau/react-native-draw';
 import styles from './Styles.js'
 
+// Import image icons
 import LogoImg from './assets/images/kanji-buddy-logo.svg';
 import DashboardIcon from './assets/images/dashboard-icon.svg';
 import StudyIcon from './assets/images/study-icon.svg';
 import SettingsIcon from './assets/images/settings-icon.svg';
 import MyKanjiIcon from './assets/images/my-kanji-icon.svg';
+import DashboardRedIcon from './assets/images/dashboard-red-icon.svg';
+import StudyRedIcon from './assets/images/study-red-icon.svg';
+import SettingsRedIcon from './assets/images/settings-red-icon.svg';
+import MyKanjiRedIcon from './assets/images/my-kanji-red-icon.svg';
 import EraserIcon from './assets/images/eraser-icon.svg';
 import WriteIcon from './assets/images/write-icon.svg';
 
-
-import kanjiDict from './kanjiDictTest.js';
+// import the custom kanji dictionary
+import kanjiDict from './kanjiDict.js';
 
 // Prevent the splash screen from hiding until fonts have been loaded
 SplashScreen.preventAutoHideAsync();
 
+// Set up the canvas dimensions based on device
 const canvasWidth = Dimensions.get('window').width -100;
 
 export default function App() {
+  // initialise states
   const [myKanji, setMyKanji] = useState(undefined);
   const [kanjiInfo, setKanjiInfo] = useState(undefined);
   const [myKanjiInfo, setMyKanjiInfo] = useState(undefined);
@@ -46,6 +53,7 @@ export default function App() {
     }
   }
 
+  // save MyKanji data
   const saveKanjiData = async (value) => {
     try {
       const jsonValue = JSON.stringify(value)
@@ -105,13 +113,10 @@ export default function App() {
     )
   }
 
-
-
   // Component to display a single kanji's data
   const Kanji = function(props) {
     return(
       <View style={styles.container}>
-
           {/* kanji meta */}
           <View style={styles.kanjiMeta}>
             {/* English name */}
@@ -141,7 +146,6 @@ export default function App() {
             <SvgXml xml={WriteIcon}/>
           </TouchableOpacity>
           
-
           <View style={styles.kanjiFooter}>
             {/* add to myKanji */}
             { props.route == 'study' ?
@@ -161,6 +165,7 @@ export default function App() {
     
   }
 
+  // JLPT filter bar component
   const JLPTFilters = function (props) {
     return(
       <View style={styles.jlptBtnContainer}>
@@ -174,7 +179,9 @@ export default function App() {
     )
   }
 
+  // progress bar component
   const ProgressBar = function(props){
+    // determine fill based on input values
     let fill = (props.value / props.total) *100;
 
     return(
@@ -184,7 +191,6 @@ export default function App() {
       </View>
     )
   }
-
 
   // Add to My Kanji
   function addToMyKanji(kanji) {
@@ -237,9 +243,8 @@ export default function App() {
   }
 
 
-  // Get Kanji fuction
+  // Get Kanji API fuction
   function getKanjiMeta(kanji, state) {
-    console.log(kanji);
     let kanjiMeta;
     state(undefined);
 
@@ -301,6 +306,7 @@ export default function App() {
     return progress;
   }
 
+  // return MyKanji as an array of kanji
   function getMyKanji() {
     if (myKanji == undefined) return [];
     let kanjiArray;
@@ -310,11 +316,13 @@ export default function App() {
     return kanjiArray;
   }
 
+  // Checks if given kanji exists in MyKanji and returns bool
   function inMyKanji(kanji) {
     if(myKanji == undefined) return false;
     return kanji in myKanji;
   }
 
+  // Returns the SVG image for a given kanji
   function getKanjiImage(kanji) {
     let image = kanjiDict[kanji].image;
     return image;
@@ -322,7 +330,6 @@ export default function App() {
 
   // Dashboard page
   function DashboardPage({ navigation }) {
-
     if(myKanji == undefined){
       return (
         <View style={styles.container} onLayout={onLayoutRootView}>
@@ -361,10 +368,6 @@ export default function App() {
         )
       };
     };
-
-
-
-
 
   // Create the study navigation stack
   const StudyStack = createStackNavigator();
@@ -430,7 +433,6 @@ export default function App() {
     }
     };
 
-
   // Kanji Practice page
   function PracticePage({ navigation }){
     const canvasRef = useRef(null);
@@ -444,11 +446,8 @@ export default function App() {
           <SvgXml xml={EraserIcon} />
         </TouchableOpacity>
       </View>
-      
     )
   }
-
-
 
   // Create the Settings navigation stack
   const SettingsStack = createStackNavigator();
@@ -493,17 +492,13 @@ export default function App() {
   function AboutPage({ navigation }) {
     return (
       <View style={styles.container}>
-        <Text>About Kanji</Text>
-        <Text>About JLPT</Text>
-        <Text> JLPT definitions provided by tanos.co.uk</Text>
-        <Text>Kanji image data from glyphwiki.org</Text>
-        <Text>Kanji data from kanjiapi.dev</Text>
+        <Text style={styles.sectionHeading}>About the App</Text>
+        <Text style={styles.bodyText}>
+          {`JLPT definitions provided by tanos.co.uk\nKanji image data from glyphwiki.org\nKanji data from kanjiapi.dev`}
+        </Text>
       </View>
       );
     };
-
-
-
 
   // MyKanji stack
   const MyKanjiStack = createStackNavigator();
@@ -550,9 +545,6 @@ export default function App() {
     }
     };
 
-
-
-
   // Navigation Header
   function HeaderComponent() {
     return (
@@ -580,19 +572,17 @@ export default function App() {
       <TabNav.Navigator screenOptions={({ route }) => ({
           headerShown: true,
           tabBarLabelStyle: styles.tabs,
-          tabBarIcon: ({ color }) => {
+          tabBarIcon: ({ focused }) => {
             // add custom icons
             let icon;
             // set icon based on route name
-            if(route.name === 'Dashboard') icon = <SvgXml xml={DashboardIcon} />;
-            if(route.name === 'Study Kanji') icon = <SvgXml xml={StudyIcon}  />;
-            if(route.name === 'My Kanji') icon = <SvgXml xml={MyKanjiIcon} />;
-            if(route.name === 'Settings') icon = <SvgXml xml={SettingsIcon}  />;
+            if(route.name === 'Dashboard') icon = focused ? <SvgXml xml={DashboardRedIcon} /> : <SvgXml xml={DashboardIcon} />;
+            if(route.name === 'Study Kanji') icon = focused ? <SvgXml xml={StudyRedIcon} /> : <SvgXml xml={StudyIcon} /> ;
+            if(route.name === 'My Kanji') icon = focused ? <SvgXml xml={MyKanjiRedIcon} /> : <SvgXml xml={MyKanjiIcon} />;
+            if(route.name === 'Settings') icon = focused ? <SvgXml xml={SettingsRedIcon}  /> : <SvgXml xml={SettingsIcon}  />;
 
             return icon;
           },
-          tabBarActiveTintColor: 'tomato',
-          tabBarInactiveTintColor: 'gray',
         })}
       >
         <TabNav.Screen name="Dashboard" component={DashboardPage} options={Header} />
