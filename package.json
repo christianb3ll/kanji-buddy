@@ -29,7 +29,8 @@
     "react-native-svg": "13.4.0",
     "react-native-svg-transformer": "^1.0.0",
     "react-native-tableview-simple": "^4.4.0",
-    "react-navigation": "^4.4.4"
+    "react-navigation": "^4.4.4",
+    "expo-updates": "~0.15.6"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

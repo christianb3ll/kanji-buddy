@@ -10,6 +10,7 @@ The app currenty features Kanji for:
 
 ## Runnning the App
 No additional steps are required to run the app. The app saves users Kanji data locally. No account or API credentials are necessary.
+The app can be run from the Expo Publish link here: [Expo Publish](https://snack.expo.dev/@piiego/kanji-buddy)
 
 ### Expo Snack
 Whilst the project compiles and runs for both IOS and Android, the use of SVG graphics requires dependencies that are incompatible with Expo Snack
