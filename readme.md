@@ -1,5 +1,7 @@
 # Kanji Buddy
 
+![Kanji Buddy](/screenshot.webp)
+
 ## About
 Kanji Buddy is a Japanese Kanji learning aid. It allows you to keep track of your studied Kanji, see readings and practice writing.
 
